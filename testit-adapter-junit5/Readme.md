@@ -15,7 +15,7 @@ Add this dependency to your project POM:
 <dependency>
     <groupId>ru.testit</groupId>
     <artifactId>testit-adapter-junit5</artifactId>
-    <version>1.3.5</version>
+    <version>2.2.10</version>
     <scope>compile</scope>
 </dependency>
 ```
@@ -35,11 +35,13 @@ implementation "ru.testit:testit-adapter-junit5:1.3.5"
 1. Add this dependency to your project POM:
     ````xml
      <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <aspectj.version>1.9.7</aspectj.version>
-        <adapter.version>1.3.5</adapter.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <aspectj.version>1.9.22</aspectj.version>
+        <adapter.version>2.2.10</adapter.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -78,14 +80,21 @@ implementation "ru.testit:testit-adapter-junit5:1.3.5"
             <version>${aspectj.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.25.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>dev.aspectj</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
-                <version>1.14.0</version>
+                <version>1.14</version>
                 <configuration>
                     <complianceLevel>${maven.compiler.source}</complianceLevel>
                     <source>${maven.compiler.source}</source>
@@ -104,20 +113,20 @@ implementation "ru.testit:testit-adapter-junit5:1.3.5"
                         </goals>
                     </execution>
                 </executions>
-               <dependencies>
+                <dependencies>
                     <dependency>
                         <groupId>org.aspectj</groupId>
                         <artifactId>aspectjtools</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
-                </dependencies>  
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M7</version>
+                <version>3.2.5</version>
                 <configuration>
-                    <argLine>-XX:-UseSplitVerifier</argLine>
+                    <argLine>-noverify</argLine>
                     <argLine>-javaagent:${user.home}/.m2/repository/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argLine>
                     <properties>
                         <configurationParameters>
@@ -207,7 +216,7 @@ test {
 | Parameter for specifying the name of test run in TMS instance (**It's optional**). If it is not provided, it is created automatically                                                                                                                                                                                                                                                  | testRunName                | TMS_TEST_RUN_NAME                 | tmsTestRunName                  |
 | Adapter mode. Default value - 0. The adapter supports following modes:<br/>0 - in this mode, the adapter filters tests by test run ID and configuration ID, and sends the results to the test run<br/>1 - in this mode, the adapter sends all results to the test run without filtering<br/>2 - in this mode, the adapter creates a new test run and sends results to the new test run | adapterMode                | TMS_ADAPTER_MODE                  | tmsAdapterMode                  |
 | It enables/disables certificate validation (**It's optional**). Default value - true                                                                                                                                                                                                                                                                                                   | certValidation             | TMS_CERT_VALIDATION               | tmsCertValidation               |
-| It enables/disables TMS integration (**It's optional**). Default value - true                                                                                                                                                                                                                                                                                                          | testIt                     | TMS_TEST_IT                       | tmsTestIt                       |
+| It enables/disables TMS integration (**It's optional**). Default value - true                                                                                                                                                                                                                                                                                                          | tmsTestIt                  | TMS_TEST_IT                       | tmsTestIt                       |
 | Mode of automatic creation test cases (**It's optional**). Default value - false. The adapter supports following modes:<br/>true - in this mode, the adapter will create a test case linked to the created autotest (not to the updated autotest)<br/>false - in this mode, the adapter will not create a test case                                                                    | automaticCreationTestCases | TMS_AUTOMATIC_CREATION_TEST_CASES | tmsAutomaticCreationTestCases   |
 | Name of the configuration file If it is not provided, it is used default file name (**It's optional**)                                                                                                                                                                                                                                                                                 | -                          | TMS_CONFIG_FILE                   | tmsConfigFile                   |
 
@@ -224,7 +233,7 @@ testRunName=TEST_RUN_NAME
 adapterMode=ADAPTER_MODE
 automaticCreationTestCases=AUTOMATIC_CREATION_TEST_CASES
 certValidation=CERT_VALIDATION
-testIt=TEST_IT
+tmsTestIt=TEST_IT
 ```
 
 #### Examples
@@ -237,8 +246,8 @@ gradle test -DtmsUrl=http://localhost:8080 -DtmsPrivateToken=Token -DtmsProjectI
 
 ##### Maven
 ```
-maven test -DtmsUrl=http://localhost:8080 -DtmsPrivateToken=Token -DtmsProjectId=f5da5bab-380a-4382-b36f-600083fdd795 -DtmsConfigurationId=3a14fa45-b54e-4859-9998-cc502d4cc8c6
--DtmsAdapterMode=0 -DtmsTestRunId=a17269da-bc65-4671-90dd-d3e3da92af80 -DtmsTestRunName=Regress -DtmsAutomaticCreationTestCases=true -DtmsCertValidation=true -DtmsTestIt=true
+maven test -DTMS_URL=http://localhost:8080 -DTMS_PRIVATE_TOKEN=Token -DTMS_PROJECT_ID=f5da5bab-380a-4382-b36f-600083fdd795 -DTMS_CONFIGURATION_ID=3a14fa45-b54e-4859-9998-cc502d4cc8c6
+-DTMS_ADAPTER_MODE=0 -DTMS_TEST_RUN_ID=a17269da-bc65-4671-90dd-d3e3da92af80 -DTMS_TEST_RUN_NAME=Regress -DTMS_AUTOMATIC_CREATION_TEST_CASES=true -DTMS_CERT_VALIDATION=true -DTMS_TEST_IT=true
 ```
 
 If you want to enable debug mode then
